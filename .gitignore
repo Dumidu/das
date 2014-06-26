@@ -1,0 +1,7 @@
+.sass-cache/
+notes/
+node_modules/
+tmp/
+config/*.json
+*.un~
+*.swp

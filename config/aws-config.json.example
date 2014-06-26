@@ -1,0 +1,6 @@
+{
+  "AWSAccessKeyId" : "ID KEY",
+  "AWSSecretKey"   : "SECRET KEY",
+  "bucket"         : "assets.countryoutfitter.com",
+  "access"         : "public-read"
+}
