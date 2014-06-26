@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+</html>
+  <head>
+    <title>Asynchronously Loaded Gated Content with Backjack and Mousejack Exit Intent Trackers</title>
+  </head>
+  <body>
+
+    <h1>Asynchronously Loaded Gated Content with Backjack and Mousejack Bounce Protectors</h1>
+
+    <article>
+      <h2>Hello, World!</h2>
+      <p>
+        Bacon ipsum dolor sit amet sirloin ham hock bacon sed. Ham hock turkey
+        swine filet mignon in incididunt eu. Elit ham hock minim consectetur
+        ribeye beef ribs. Beef ribs pork loin enim aliquip sint boudin venison
+        ut.
+      </p>
+      <p>
+        Anim brisket chuck et kevin. Porchetta reprehenderit veniam, swine doner
+        pork pig frankfurter ut deserunt occaecat boudin pancetta in. Aliquip
+        aliqua doner, sint dolore irure nulla ut tri-tip duis biltong tongue
+        incididunt.
+      </p>
+    </article>
+
+    <script>
+      // Mock Google Tag Manager
+      var dataLayer = [];
+    </script>
+
+    <script>
+      (function(){
+        var onDasLoad = function(){
+          createModals();
+          createResponders();
+        };
+
+        var createModals = function(){
+          window.DasModals        = window.DasModals || {};
+          DasModals.exitModal     = createExitIntentModal();
+          DasModals.flashSaleLink = createflashSaleLinkModal();
+        };
+
+        var createResponders = function() {
+          window.DasResponders = window.DasResponders || {};
+          DasResponders.bounceProtection = createBounceProtection();
+        }
+
+        var createExitIntentModal = function(){
+          return new DasModal({
+            id              : 'giveaway_onexit',
+            content         : './modals/modal-giveawaysignup.html',
+            stylesheet      : './css/das.css',
+            onContentLoaded : createExitSubscriber,
+            onopen          : trackExitModalOpen
+          });
+        };
+
+        var createExitSubscriber = function(){
+          return new DasSubscriber({
+            form       : window.document.querySelector('#giveaway_onexit form'),
+            oncomplete : handleExitModalSubscriberComplete,
+            onsubmit   : handleExitModalSubscriberSubmit
+          });
+        };
+
+        var trackExitModalOpen = function(){
+          if (typeof dataLayer == 'object') dataLayer.push({
+            'event'     : 'js-page-view',
+            'pageTitle' : 'Exit Intent Modal'
+          });
+        };
+
+        var handleExitModalSubscriberSubmit = function(){
+          if (typeof dataLayer == 'object') dataLayer.push({
+            'event'          : 'ajax-form-submit',
+            'conversionType' : 'Email Subscribe',
+            'squeezeType'    : 'Backjack Squeeze'
+          });
+        };
+
+        var handleExitModalSubscriberComplete = function() {
+          if (typeof dataLayer == 'object') {
+            dataLayer.push({
+              event          : 'ajax-form-complete',
+              conversionType : 'Email Subscribe',
+              userInterface  : 'styleexit',
+              callback       : goToRewardLink
+            });
+          } else {
+            goToRewardLink();
+          }
+        };
+
+        var goToRewardLink = function(){
+          window.location.assign('http://www.countryoutfitter.com/cowboy-boots/womens?code=20CO150&promo=giveaway');
+        };
+
+        var createflashSaleLinkModal = function(){
+          return new DasModal({
+            id         : 'flash_sale_link',
+            behavior   : 'gate',
+            content    : './modals/modal-flashsalelink.html',
+            content    : 'http://countryoutfitter.com/preview/flashsale',
+            stylesheet : './css/das.css',
+            onopen     : trackFlashSaleLinkModalOpen
+          });
+        };
+
+        var trackFlashSaleLinkModalOpen = function(){
+          if (typeof dataLayer == 'object') dataLayer.push({
+            'event'     : 'js-page-view',
+            'pageTitle' : 'Video Pause Modal'
+          });
+        };
+
+        var createBounceProtection = function(){
+          return new DasBounceProtection({
+            onforwardbutton : function(){
+              console.log('onforwardbutton');
+              DasModals.exitModal.close();
+            },
+            onbackbutton    : function(){
+              console.log('onbackbutton');
+              DasModals.exitModal.trigger();
+            },
+            onmouseleave    : function(){
+              console.log('onmouseleave');
+              DasModals.exitModal.trigger();
+            }
+          });
+        };
+
+        s        = document.createElement('script');
+        s.src    = '../build/das.js?r=' + Math.ceil(Math.random() * 10e16);
+        s.onload = onDasLoad;
+        document.body.appendChild(s);
+      })();
+    </script>
+  </body>
+</html>
