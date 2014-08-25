@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+</html>
+  <head>
+    <title>Simple Modal Example</title>
+
+    <style type="text/css">
+      #modal_content {
+        display: none;
+        width: 400px;
+        height: 200px;
+        padding: 20px;
+      }
+      .dm-visible #modal_content {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+
+
+    <h1>Simple Modal Example</h1>
+
+    <article>
+      <h2>
+        Modal opens when you
+        <button onclick="simpleExample.open(); return false;">click this button</button></h2>
+      <p>
+        At it's simplest, a modal may be triggered on event, and the content may
+        come from a DOM element on the page.
+      </p>
+      <p>
+        A <code>&lt;style&gt;</code> block is set in the <code>&lt;head&gt;</code>
+        of this page to hide the <code>#modal_content</code> div. At the end of
+        <code>&lt;body&gt;</code> <code>&lt;script&gt;</code> blocks include
+        <code>build/das.js</code> and create the modal.
+      </p>
+      <p>
+        This example uses the stylesheet at <code>css/das.css</code>, but you
+        can just as easily use your own or write the CSS into the page.
+        When specifying the optional <code>stylesheet:</code> argument, Das will
+        append a style <code>&lt;link&gt;</code> element as the last element in
+        the <code>&lt;head&gt;</code>.
+      </p>
+    </article>
+
+
+    <div id="modal_content">
+      <h2>Hello, World!</h2>
+      <p>
+        Anim brisket chuck et kevin. Porchetta reprehenderit veniam, swine doner
+        pork pig frankfurter ut deserunt occaecat boudin pancetta in. Aliquip
+        aliqua doner, sint dolore irure nulla ut tri-tip duis biltong tongue
+        incididunt.
+      </p>
+    </div>
+
+
+    <script src="../build/das.js?r="></script>
+    <script>
+      var simpleExample = new DasModal({
+        id         : 'simple_example',
+        content    : document.getElementById('modal_content'),
+        stylesheet : './css/das.css'
+      })
+    </script>
+
+
+  </body>
+</html>

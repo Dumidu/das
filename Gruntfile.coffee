@@ -3,6 +3,16 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks(task) for task in gruntTasks
 
   AWS = grunt.file.readJSON('./config/aws-config.json')
+  PACKAGE = grunt.file.readJSON('./package.json')
+
+  version = ->
+    PACKAGE.version
+
+  topVersion = ->
+    semanticVersion = version().split('.')
+    while semanticVersion.length > 2
+      semanticVersion.pop()
+    semanticVersion.join('.')
 
   grunt.initConfig
     pkg: grunt.file.readJSON('package.json')
@@ -42,7 +52,7 @@ module.exports = (grunt) ->
       dev:
         upload: [{
           src: 'build/*.js'
-          dest: 'libs/das/v1/'
+          dest: 'libs/das/v' + topVersion() + '/'
           gzip: true
         }]
 
