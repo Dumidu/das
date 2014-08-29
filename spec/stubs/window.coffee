@@ -4,6 +4,9 @@ XMLHttpRequestMock = require './xmlhttprequest'
 
 class WindowMock
   constructor: ->
+    @console    =
+      log      : ->
+      warn     : ->
     @document   = new DocumentMock
     @history    = new HistoryMock
     @location   =

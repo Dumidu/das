@@ -299,13 +299,33 @@
         this.stylesheet = '';
       }
       this.css = CSSUtilities;
+      if (this.bodyOpenClassName == null) {
+        this.bodyOpenClassName = 'body-dm-visible';
+      }
       this.openClassName = 'dm-visible';
-      this.modalClassName = 'dm-dasmodal';
-      this.containerClassName = 'dm-container';
+      if (this.modalClassName == null) {
+        this.modalClassName = 'dm-dasmodal';
+      }
+      if (this.layoutClassName == null) {
+        this.layoutClassName = 'dm-layout';
+      }
+      if (this.containerClassName == null) {
+        this.containerClassName = 'dm-container';
+      }
+      if (this.clickkillerClassName == null) {
+        this.clickkillerClassName = 'dm-clickkiller';
+      }
+      if (this.closeButtonClassName == null) {
+        this.closeButtonClassName = 'dm-closebutton';
+      }
+      if (this.contentContainerClassName == null) {
+        this.contentContainerClassName = 'dm-content';
+      }
       this.contentLoadingClassName = 'dm-content-loading';
       this.modal = this.constructModal();
       this.constructModalCSS();
       this.constructModalContent();
+      this.bindEventListeners();
       if (typeof this.onready === 'function') {
         this.onready();
       }
@@ -329,6 +349,10 @@
       return !!this.closeable;
     };
 
+    Modal.prototype.isClosable = function() {
+      return !!this.closeable;
+    };
+
     Modal.prototype.trigger = function() {
       if (typeof this.ontrigger === 'function') {
         this.ontrigger();
@@ -345,7 +369,9 @@
         this.onopen();
       }
       _modal.setViewedCookie();
-      return _modal.css.addClassName(_modal.openClassName, _modal.modal);
+      _modal.css.addClassName(_modal.openClassName, _modal.modal);
+      _modal.css.addClassName(_modal.openClassName, _modal.modal);
+      return _modal.css.addClassName(_modal.bodyOpenClassName, window.document.body);
     };
 
     Modal.prototype.close = function() {
@@ -354,7 +380,8 @@
       if (typeof this.onclose === 'function') {
         this.onclose();
       }
-      return this.css.removeClassName(this.openClassName, this.modal);
+      this.css.removeClassName(this.openClassName, this.modal);
+      return this.css.removeClassName(this.bodyOpenClassName, window.document.body);
     };
 
     Modal.prototype.setViewedCookie = function() {
@@ -379,11 +406,12 @@
 
     Modal.prototype.closeAll = function(callback) {
       var modal, _i, _len, _ref;
-      _ref = window.document.body.querySelectorAll('.dm-container');
+      _ref = window.document.body.querySelectorAll("." + this.openClassName);
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         modal = _ref[_i];
         this.css.removeClassName(this.openClassName, modal);
       }
+      this.css.removeClassName(this.bodyOpenClassName, window.document.body);
       if (typeof callback === 'function') {
         return callback();
       }
@@ -424,29 +452,52 @@
     Modal.prototype.constructClickKiller = function() {
       var killer;
       killer = window.document.createElement('div');
-      killer.className = 'dm-clickkiller';
+      killer.className = this.clickkillerClassName;
       killer.addEventListener("click", (function(e) {
         return this.handleKillerClick(e);
       }).bind(this), true);
       return killer;
     };
 
+    Modal.prototype.constructCloseButton = function() {
+      var closeButton;
+      closeButton = window.document.createElement('div');
+      closeButton.className = this.closeButtonClassName;
+      closeButton.addEventListener("click", (function(e) {
+        return this.handleCloserClick(e);
+      }).bind(this), true);
+      return closeButton;
+    };
+
     Modal.prototype.constructModalLayout = function() {
       var layout;
       layout = window.document.createElement('div');
-      layout.className = 'dm-layout';
+      layout.className = this.layoutClassName;
       return layout;
     };
 
     Modal.prototype.constructModalContent = function() {
       if (this.isAjaxContent()) {
-        this.contentContainer.className = "dm-content " + this.contentLoadingClassName;
+        this.contentContainer.className = "" + this.contentContainerClassName + " " + this.contentLoadingClassName;
         return this.loadModalContent();
       } else {
-        this.contentContainer.className = "dm-content";
+        this.contentContainer.className = this.contentContainerClassName;
         this.contentContainer.appendChild(this.content);
         return this.handleContentLoaded();
       }
+    };
+
+    Modal.prototype.bindEventListeners = function() {
+      var closeButton, _i, _len, _ref, _results;
+      _ref = this.modal.querySelectorAll("#" + this.id + " ." + this.closeButtonClassName);
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        closeButton = _ref[_i];
+        _results.push(closeButton.addEventListener("click", (function(e) {
+          return this.handleCloserClick(e);
+        }).bind(this), true));
+      }
+      return _results;
     };
 
     Modal.prototype.updateModalContent = function(content) {
@@ -455,10 +506,21 @@
       updateContent = html.querySelectorAll('body > *');
       for (_i = 0, _len = updateContent.length; _i < _len; _i++) {
         node = updateContent[_i];
-        this.contentContainer.appendChild(node);
+        this.insertFilteredNode(node);
       }
       this.css.removeClassName(this.contentLoadingClassName, this.contentContainer);
       return this.handleContentLoaded();
+    };
+
+    Modal.prototype.insertFilteredNode = function(node) {
+      switch (node.tagName.toLowerCase()) {
+        case 'script':
+          return eval(node.text);
+        case 'style':
+          return window.document.head.appendChild(node);
+        default:
+          return this.contentContainer.appendChild(node);
+      }
     };
 
     Modal.prototype.loadModalContent = function() {
@@ -502,11 +564,32 @@
     };
 
     Modal.prototype.handleKillerClick = function(event) {
-      var target;
-      target = event.target;
-      if (this.isKillable() && /dm\-(clickkiller|layout)/.test(target.className)) {
+      event.preventDefault();
+      if (this.isKillable() && this.isCloserClick(event)) {
         return this.close();
       }
+    };
+
+    Modal.prototype.handleCloserClick = function(event) {
+      event.preventDefault();
+      if (this.isClosable() && this.isCloserClick(event)) {
+        return this.close();
+      }
+    };
+
+    Modal.prototype.isCloserClick = function(event) {
+      var clickClass;
+      clickClass = event.target.className;
+      if (clickClass.indexOf(this.clickkillerClassName) >= 0) {
+        return true;
+      }
+      if (clickClass.indexOf(this.layoutClassName) >= 0) {
+        return true;
+      }
+      if (clickClass.indexOf(this.closeButtonClassName) >= 0) {
+        return true;
+      }
+      return false;
     };
 
     return Modal;

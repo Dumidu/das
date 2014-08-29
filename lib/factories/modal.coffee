@@ -6,31 +6,37 @@ class Modal
     for arg of @args
       @[arg] = @args[arg]
 
-    @container              ?= window.document.body
-    @id                     ?= 'dm-modal'
-    @behavior               ?= null
-    @closeable              ?= true
-    @className              ?= ''
-    @content                ?= window.document.createTextNode('')
-    @contentContainer        = window.document.createElement('div')
-    @cookieName             ?= "DasModal.#{@id}.viewed"
-    @cookieDomain           ?= @getCookieDomain()
-    @expires                ?= @getModalTimeOut()
-    @onopen                 ?= ->
-    @onclose                ?= ->
-    @onready                ?= ->
-    @onContentLoaded        ?= ->
-    @ontrigger              ?= ->
-    @stylesheet             ?= ''
-    @css                     = CSSUtilities
-    @openClassName           = 'dm-visible'
-    @modalClassName          = 'dm-dasmodal'
-    @containerClassName      = 'dm-container'
-    @contentLoadingClassName = 'dm-content-loading'
-    @modal                   = @constructModal()
+    @container                 ?= window.document.body
+    @id                        ?= 'dm-modal'
+    @behavior                  ?= null
+    @closeable                 ?= true
+    @className                 ?= ''
+    @content                   ?= window.document.createTextNode('')
+    @contentContainer           = window.document.createElement('div')
+    @cookieName                ?= "DasModal.#{@id}.viewed"
+    @cookieDomain              ?= @getCookieDomain()
+    @expires                   ?= @getModalTimeOut()
+    @onopen                    ?= ->
+    @onclose                   ?= ->
+    @onready                   ?= ->
+    @onContentLoaded           ?= ->
+    @ontrigger                 ?= ->
+    @stylesheet                ?= ''
+    @css                        = CSSUtilities
+    @bodyOpenClassName         ?= 'body-dm-visible'
+    @openClassName              = 'dm-visible'
+    @modalClassName            ?= 'dm-dasmodal'
+    @layoutClassName           ?= 'dm-layout'
+    @containerClassName        ?= 'dm-container'
+    @clickkillerClassName      ?= 'dm-clickkiller'
+    @closeButtonClassName      ?= 'dm-closebutton'
+    @contentContainerClassName ?= 'dm-content'
+    @contentLoadingClassName    = 'dm-content-loading'
+    @modal                      = @constructModal()
 
     @constructModalCSS()
     @constructModalContent()
+    @bindEventListeners()
 
     if typeof @onready == 'function' then @onready()
 
@@ -48,6 +54,9 @@ class Modal
   isKillable: ->
     !!@closeable
 
+  isClosable: ->
+    !!@closeable
+
   trigger: ->
     if typeof @ontrigger is 'function'
       @ontrigger()
@@ -63,6 +72,8 @@ class Modal
 
     _modal.setViewedCookie()
     _modal.css.addClassName(_modal.openClassName, _modal.modal)
+    _modal.css.addClassName(_modal.openClassName, _modal.modal)
+    _modal.css.addClassName(_modal.bodyOpenClassName, window.document.body)
 
   close: ->
     _modal = @
@@ -71,6 +82,7 @@ class Modal
       @onclose()
 
     @css.removeClassName(@openClassName, @modal)
+    @css.removeClassName(@bodyOpenClassName, window.document.body)
 
   setViewedCookie: ->
     c = "#{@cookieName}=true;domain=#{@cookieDomain};expires=#{@expires};path=/"
@@ -87,8 +99,10 @@ class Modal
     hostArray.join('.')
 
   closeAll: (callback) ->
-    for modal in window.document.body.querySelectorAll('.dm-container')
+    for modal in window.document.body.querySelectorAll(".#{@openClassName}")
       @css.removeClassName(@openClassName, modal)
+
+    @css.removeClassName(@bodyOpenClassName, window.document.body)
 
     if typeof callback is 'function'
       callback()
@@ -122,34 +136,50 @@ class Modal
 
   constructClickKiller: ->
     killer           = window.document.createElement('div')
-    killer.className = 'dm-clickkiller'
+    killer.className = @clickkillerClassName
     killer.addEventListener("click", ((e) -> @handleKillerClick(e)).bind(this), true)
     killer
 
+  constructCloseButton: ->
+    closeButton           = window.document.createElement('div')
+    closeButton.className = @closeButtonClassName
+    closeButton.addEventListener("click", ((e) -> @handleCloserClick(e)).bind(this), true)
+    closeButton
+
   constructModalLayout: ->
     layout           = window.document.createElement('div')
-    layout.className = 'dm-layout'
+    layout.className = @layoutClassName
     layout
 
   constructModalContent: ->
     if @isAjaxContent()
-      @contentContainer.className = "dm-content #{@contentLoadingClassName}"
+      @contentContainer.className = "#{@contentContainerClassName} #{@contentLoadingClassName}"
       @loadModalContent()
     else
-      @contentContainer.className = "dm-content"
+      @contentContainer.className = @contentContainerClassName
       @contentContainer.appendChild(@content)
       @handleContentLoaded()
+
+  bindEventListeners: ->
+    for closeButton in @modal.querySelectorAll("##{@id} .#{@closeButtonClassName}")
+      closeButton.addEventListener("click", ((e) -> @handleCloserClick(e)).bind(this), true)
 
   updateModalContent: (content) ->
     html          = @parseHTML(content)
     updateContent = html.querySelectorAll('body > *')
 
     for node in updateContent
-      @contentContainer.appendChild(node)
+      @insertFilteredNode(node)
 
     @css.removeClassName(@contentLoadingClassName, @contentContainer)
 
     @handleContentLoaded()
+
+  insertFilteredNode: (node) ->
+    switch (node.tagName.toLowerCase())
+      when 'script' then eval(node.text)
+      when 'style' then window.document.head.appendChild(node)
+      else @contentContainer.appendChild(node)
 
   loadModalContent: ->
     _modal = @
@@ -178,8 +208,23 @@ class Modal
     html
 
   handleKillerClick: (event) ->
-    target = event.target
-    if @isKillable() and /dm\-(clickkiller|layout)/.test(target.className)
+    event.preventDefault()
+    if @isKillable() and @isCloserClick(event)
       @close()
+
+  handleCloserClick: (event) ->
+    event.preventDefault()
+    if @isClosable() and @isCloserClick(event)
+      @close()
+
+  isCloserClick: (event) ->
+    clickClass = event.target.className;
+    if (clickClass.indexOf(@clickkillerClassName) >= 0)
+      return true
+    if (clickClass.indexOf(@layoutClassName) >= 0)
+      return true
+    if (clickClass.indexOf(@closeButtonClassName) >= 0)
+      return true
+    false
 
 module?.exports = Modal
