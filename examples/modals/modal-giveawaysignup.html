@@ -16,7 +16,7 @@
   </head>
   <body>
     <div class="das-exitmodal">
-      <form action="http://countryoutfitter.com/subscribe/">
+      <form action="http://countryoutfitter.com/subscribe/" method="get">
         <div class="form">
           <div class="das-exitmodal-hero">
             <div class="das-exitmodal-hero-headline">
@@ -25,9 +25,13 @@
             </div>
           </div>
           <div class="das-exitmodal-form">
-            <input type="email" name="email" autofocus> <input type="submit" value="Enter &#9656;">
+            <input type="email" name="email" autofocus>
             <input type="hidden" name="vars[]" value="platinum_miranda_lambert">
             <input type="hidden" name="vars[]" value="giveaway">
+            <input type="submit" value="Enter &#9656;">
+          </div>
+          <div class="das-exitmodal-errors">
+            Please enter a valid email address
           </div>
           <div class="das-exitmodal-legal">
             By submitting my email, I understand the <a href="http://www.countryoutfitter.com/page/terms-and-conditions.html" target="_blank">giveaway rules</a>.
@@ -104,6 +108,29 @@
           .das-exitmodal-form input[name=email] + input[type=submit] {
             margin-left: 8px;
           }
+          .das-exitmodal-errors {
+            background: #c66;
+            border-radius: 4px;
+            border: 1px solid #faa;
+            box-shadow: 0 1px 0 #a00;
+            color: #fff;
+            display: inline-block;
+            display: none;
+            font: 12px/1 sans-serif;
+            margin-top: -1em;
+            margin-left: 20px;
+            padding: 0.75em 2em;
+            position: absolute;
+          }
+            .das-exitmodal-errors:before {
+              content: "";
+              display: block;
+              border-style: solid;
+              border-width: 0 13px 11px;
+              border-color: transparent transparent #c66;
+              position: absolute;
+              margin: -20px 0 0;
+            }
         .das-exitmodal-legal {
           background: #e8e8e8;
           -webkit-box-sizing: border-box;
@@ -132,12 +159,18 @@
     look in different views like the home page or the inside page.
     ---------------------------------------------------------------------- */
 
+      /* Errors */
+        form.error .das-exitmodal-errors {
+          display: inline-block;
+        }
+
       /* Mobile */
       @media (max-width: 640px) {
 
         .das-exitmodal {
           width: 100%;
           min-height: 0;
+          background: #fff;
         }
           .das-exitmodal-hero {
             height: 200px;

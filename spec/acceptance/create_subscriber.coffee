@@ -50,12 +50,12 @@ describe 'Feature: Subscriber', ->
 
       sinon.spy(_subscriber, 'submit')
 
-      _subscriber.handleSubmit(new @Stubs.EventMock)
+      _subscriber.handleFormSubmit(new @Stubs.EventMock)
       expect(_subscriber.submit.called).to.be false
 
     it 'calls a callback on form submit', ->
       sinon.spy(@subscriber, 'onsubmit')
-      @subscriber.handleSubmit(new @Stubs.EventMock())
+      @subscriber.handleFormSubmit(new @Stubs.EventMock())
       expect(@subscriber.onsubmit.called).to.be true
 
     it 'calls a callback on error', ->
@@ -64,7 +64,7 @@ describe 'Feature: Subscriber', ->
 
       sinon.spy(_subscriber, 'onerror')
 
-      _subscriber.handleSubmit(new @Stubs.EventMock)
+      _subscriber.handleFormSubmit(new @Stubs.EventMock)
       expect(_subscriber.onerror.called).to.be true
 
     it 'calls a callback on completion', ->
@@ -75,7 +75,7 @@ describe 'Feature: Subscriber', ->
       expect(@subscriber.oncomplete.called).to.be true
 
     it 'indicates status on form submit', ->
-      @subscriber.handleSubmit(new @Stubs.EventMock)
+      @subscriber.handleFormSubmit(new @Stubs.EventMock)
       expect(@subscriber.form.className).to.contain(@subscriber.loadingClassName)
 
     it 'indicates status on error', ->

@@ -29,6 +29,10 @@
     </script>
 
     <script>
+      var DasModals      = DasModals || {};
+      var DasResponders  = DasResponders || {};
+      var DasSubscribers = DasSubscribers || {};
+
       (function(){
         var onDasLoad = function(){
           createModals();
@@ -36,13 +40,11 @@
         };
 
         var createModals = function(){
-          window.DasModals        = window.DasModals || {};
           DasModals.exitModal     = createExitIntentModal();
           DasModals.flashSaleLink = createflashSaleLinkModal();
         };
 
         var createResponders = function() {
-          window.DasResponders = window.DasResponders || {};
           DasResponders.bounceProtection = createBounceProtection();
         }
 
@@ -50,6 +52,7 @@
           return new DasModal({
             id              : 'giveaway_onexit',
             content         : './modals/modal-giveawaysignup.html',
+            content         : './modals/simpleform.html',
             stylesheet      : './css/das.css',
             onContentLoaded : createExitSubscriber,
             onopen          : trackExitModalOpen
@@ -57,36 +60,52 @@
         };
 
         var createExitSubscriber = function(){
-          return new DasSubscriber({
-            form       : window.document.querySelector('#giveaway_onexit form'),
+          console.log('createExitSubscriber');
+
+          DasSubscribers.exitModalSubscriber = new DasSubscriber({
+            // form       : window.document.querySelector('#giveaway_onexit form'),
             oncomplete : handleExitModalSubscriberComplete,
-            onsubmit   : handleExitModalSubscriberSubmit
+            onsubmit   : trackExitModalSubscriberSubmit
           });
+
+          console.log(DasSubscribers.exitModalSubscriber);
+          var eventMock = {
+            preventDefault: function(){}
+          };
+          DasSubscribers.exitModalSubscriber.handleFormSubmit(eventMock);
         };
 
         var trackExitModalOpen = function(){
-          if (typeof dataLayer == 'object') dataLayer.push({
+          var event = {
             'event'     : 'js-page-view',
             'pageTitle' : 'Exit Intent Modal'
-          });
+          };
+          if ('dataLayer' in window) dataLayer.push(event);
         };
 
-        var handleExitModalSubscriberSubmit = function(){
-          if (typeof dataLayer == 'object') dataLayer.push({
+        var trackExitModalSubscriberSubmit = function(){
+          var event = {
             'event'          : 'ajax-form-submit',
             'conversionType' : 'Email Subscribe',
             'squeezeType'    : 'Backjack Squeeze'
-          });
+          };
+          if ('dataLayer' in window) dataLayer.push(event);
         };
 
         var handleExitModalSubscriberComplete = function() {
-          if (typeof dataLayer == 'object') {
+          if ('dataLayer' in window) {
+
             dataLayer.push({
               event          : 'ajax-form-complete',
               conversionType : 'Email Subscribe',
               userInterface  : 'styleexit',
               callback       : goToRewardLink
             });
+
+            var timeoutID = window.setTimeout(function(){
+              goToRewardLink();
+            }, 1750);
+
           } else {
             goToRewardLink();
           }
@@ -99,8 +118,6 @@
         var createflashSaleLinkModal = function(){
           return new DasModal({
             id         : 'flash_sale_link',
-            behavior   : 'gate',
-            content    : 'http://countryoutfitter.com/preview/flashsale',
             content    : './modals/modal-flashsalelink.html',
             stylesheet : './css/das.css',
             onopen     : trackFlashSaleLinkModalOpen
@@ -108,10 +125,11 @@
         };
 
         var trackFlashSaleLinkModalOpen = function(){
-          if (typeof dataLayer == 'object') dataLayer.push({
+          var event = {
             'event'     : 'js-page-view',
             'pageTitle' : 'Video Pause Modal'
-          });
+          };
+          if ('dataLayer' in window) dataLayer.push(event);
         };
 
         var createBounceProtection = function(){
@@ -131,10 +149,15 @@
           });
         };
 
-        s        = document.createElement('script');
-        s.src    = '../build/das.js?r=' + Math.ceil(Math.random() * 10e16);
-        s.onload = onDasLoad;
-        document.body.appendChild(s);
+        if(!('DasModal' in window)) {
+          var script    = document.createElement('script');
+          script.async  = true;
+          script.src    = '../build/das.js';
+          script.onload = onDasLoad;
+          document.head.appendChild(script);
+        } else {
+          onDasLoad();
+        }
       })();
     </script>
   </body>

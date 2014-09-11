@@ -629,17 +629,11 @@
       if (this.submitSelector == null) {
         this.submitSelector = 'input[type="submit"]';
       }
-      if (this.errorsSelector == null) {
-        this.errorsSelector = '.form-errors';
-      }
       if (this.emailElement == null) {
         this.emailElement = this.findEmailElement();
       }
       if (this.submitElement == null) {
         this.submitElement = this.findSubmitElement();
-      }
-      if (this.errorsElement == null) {
-        this.errorsElement = this.findErrorsElement();
       }
       if (this.loadingClassName == null) {
         this.loadingClassName = 'loading';
@@ -662,14 +656,16 @@
       this.carrierClass = Carrier;
       this.carrier = {};
       this.css = CSSUtilities;
-      this.form.addEventListener("submit", (function(_this) {
-        return function(e) {
-          return _this.handleSubmit(e);
-        };
-      })(this));
+      this.bindFormSubmit();
     }
 
-    Subscriber.prototype.handleSubmit = function(event) {
+    Subscriber.prototype.bindFormSubmit = function() {
+      return this.form.addEventListener("submit", (function(e) {
+        return this.handleFormSubmit(e);
+      }).bind(this), true);
+    };
+
+    Subscriber.prototype.handleFormSubmit = function(event) {
       event.preventDefault();
       this.updateStatus('loading');
       if (this.emailIsValid(this.getEmail())) {
@@ -759,10 +755,6 @@
 
     Subscriber.prototype.findSubmitElement = function() {
       return this.form.querySelector(this.submitSelector);
-    };
-
-    Subscriber.prototype.findErrorsElement = function() {
-      return this.form.querySelector(this.errorsSelector);
     };
 
     return Subscriber;

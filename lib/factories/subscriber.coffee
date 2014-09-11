@@ -10,10 +10,8 @@ class Subscriber
     @action            ?= @findFormAction()
     @emailSelector     ?= 'input[name="email"]'
     @submitSelector    ?= 'input[type="submit"]'
-    @errorsSelector    ?= '.form-errors'
     @emailElement      ?= @findEmailElement()
     @submitElement     ?= @findSubmitElement()
-    @errorsElement     ?= @findErrorsElement()
     @loadingClassName  ?= 'loading'
     @errorClassName    ?= 'error'
     @completeClassName ?= 'complete'
@@ -24,9 +22,12 @@ class Subscriber
     @carrier            = {}
     @css                = CSSUtilities
 
-    @form.addEventListener("submit", (e) => @handleSubmit(e))
+    @bindFormSubmit()
 
-  handleSubmit: (event) ->
+  bindFormSubmit: ->
+    @form.addEventListener("submit", ((e) -> @handleFormSubmit(e)).bind(this), true)
+
+  handleFormSubmit: (event) ->
     event.preventDefault()
 
     @updateStatus('loading')
@@ -42,7 +43,7 @@ class Subscriber
     if typeof @onerror is 'function'
       @onerror()
 
-  handleComplete: () ->
+  handleComplete: ->
     @updateStatus('complete')
 
     if typeof @oncomplete is 'function'
@@ -102,8 +103,5 @@ class Subscriber
 
   findSubmitElement: ->
     @form.querySelector(@submitSelector)
-
-  findErrorsElement: ->
-    @form.querySelector(@errorsSelector)
 
 module?.exports = Subscriber
