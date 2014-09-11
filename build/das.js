@@ -564,8 +564,8 @@
     };
 
     Modal.prototype.handleKillerClick = function(event) {
-      event.preventDefault();
       if (this.isKillable() && this.isCloserClick(event)) {
+        event.preventDefault();
         return this.close();
       }
     };

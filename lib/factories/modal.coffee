@@ -208,8 +208,8 @@ class Modal
     html
 
   handleKillerClick: (event) ->
-    event.preventDefault()
     if @isKillable() and @isCloserClick(event)
+      event.preventDefault()
       @close()
 
   handleCloserClick: (event) ->
