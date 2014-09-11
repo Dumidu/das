@@ -59,8 +59,18 @@
       if (this.params == null) {
         this.params = {};
       }
+      if (this.jsonpHandle == null) {
+        this.jsonpHandle = this.constructJsonpHandler();
+      }
       this.carrier = this.constructCarrier();
     }
+
+    ScriptCarrier.prototype.constructJsonpHandler = function() {
+      var jsonpHandle;
+      jsonpHandle = "jsonp" + (Math.ceil(Math.random() * 10e8));
+      window[jsonpHandle] = this.callback;
+      return jsonpHandle;
+    };
 
     ScriptCarrier.prototype.send = function() {
       return window.document.body.appendChild(this.carrier);
@@ -71,16 +81,13 @@
       _subscriber = this;
       carrier = window.document.createElement('script');
       carrier.async = true;
-      carrier.onload = function() {
-        return _subscriber.callback();
-      };
       carrier.src = this.buildCarrierSrc();
       return carrier;
     };
 
     ScriptCarrier.prototype.buildCarrierSrc = function() {
       this.params['r'] = Math.ceil(Math.random() * 10e8);
-      this.params['callback'] = "jsonp" + (Math.ceil(Math.random() * 10e8));
+      this.params['callback'] = this.jsonpHandle;
       return "" + this.action + "?" + (this.stringifyParams());
     };
 

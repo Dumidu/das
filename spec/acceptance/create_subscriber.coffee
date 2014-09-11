@@ -67,12 +67,13 @@ describe 'Feature: Subscriber', ->
       _subscriber.handleFormSubmit(new @Stubs.EventMock)
       expect(_subscriber.onerror.called).to.be true
 
-    it 'calls a callback on completion', ->
+    it 'sets a JSONP callback to be called on completion', ->
       sinon.spy(@subscriber, 'oncomplete')
 
       @subscriber.submit()
-      @subscriber.carrier.carrier.onload()
-      expect(@subscriber.oncomplete.called).to.be true
+
+      callbackHandle = @subscriber.carrier.jsonpHandle
+      expect(window).to.have.property(callbackHandle)
 
     it 'indicates status on form submit', ->
       @subscriber.handleFormSubmit(new @Stubs.EventMock)

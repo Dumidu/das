@@ -6,7 +6,13 @@ class ScriptCarrier
     @callback       ?= ->
     @callbackParams ?= {}
     @params         ?= {}
+    @jsonpHandle    ?= @constructJsonpHandler()
     @carrier         = @constructCarrier()
+
+  constructJsonpHandler: ->
+    jsonpHandle         = "jsonp#{Math.ceil(Math.random() * 10e8)}"
+    window[jsonpHandle] = @callback
+    jsonpHandle
 
   send: ->
     window.document.body.appendChild(@carrier)
@@ -15,14 +21,12 @@ class ScriptCarrier
     _subscriber    = @
     carrier        = window.document.createElement('script')
     carrier.async  = true
-    carrier.onload = ->
-      _subscriber.callback()
     carrier.src    = @buildCarrierSrc()
     carrier
 
   buildCarrierSrc: ->
     @params['r']        = Math.ceil(Math.random() * 10e8)
-    @params['callback'] = "jsonp#{Math.ceil(Math.random() * 10e8)}"
+    @params['callback'] = @jsonpHandle
     "#{@action}?#{@stringifyParams()}"
 
   stringifyParams: ->

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+</html>
+  <head>
+    <title>Simple Subscriber Example</title>
+
+    <style>
+
+      /* LAYOUT */
+
+      form.loading {
+        display: none;
+        background: #999;
+        border-radius: 4px;
+        padding: 4px;
+      }
+
+      form.error {
+        background: #fee;
+        border-radius: 4px;
+        padding: 4px;
+      }
+      .errors {
+        display: none;
+        background: #fcc;
+        border-radius: 4px;
+        padding: 4px;
+        border: 1px solid #faa;
+      }
+
+
+      /* STATES */
+
+      form.error .errors {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+
+
+    <h1>Simple Subscriber Example</h1>
+
+    <article>
+
+      <form id="subscriber_form" action="http://countryoutfitter.com/subscribe/">
+        <h2>
+          Subscriber subscribes when you
+          <input type="email" name="email" placeholder="enter your email and...">
+          <input type="submit" value="click this button">
+        </h2>
+        <span class="errors">Oops! Check the email you entered.</span>
+      </form>
+      <script src="../build/das.js?r="></script>
+      <script>
+        var alertComplete = function() {
+          alert('complete!');
+        };
+
+        var simpleExample = new DasSubscriber({
+          form       : document.getElementById('subscriber_form'),
+          oncomplete : alertComplete
+        })
+      </script>
+
+      <p>
+        At it's simplest, a subscriber attaches AJAX actions to a simple email
+        subcribe form. It is triggered on 'submit', it reports errors when the
+        email is not valid, and it calls a callback on AJAX completion with the
+        contents returned.
+      </p>
+      <p>
+        At the end of <code>&lt;body&gt;</code>, <code>&lt;script&gt;</code>
+        blocks include <code>build/das.js</code> and create the subscriber
+        behavior. A <code>&lt;style&gt;</code> block is set in the
+        <code>&lt;head&gt;</code> of this page to indicate loading and to hide
+        the form <code>.errors</code> until needed.
+      </p>
+
+
+  </body>
+</html>
