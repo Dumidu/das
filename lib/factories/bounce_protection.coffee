@@ -7,6 +7,9 @@ class DasBounceProtection
     @onbackbutton    = ->
     @onmouseleave    = ->
 
+    if !@isUACompatible()
+      return {}
+
     for arg of @args
       @[arg] = @args[arg]
 
@@ -79,5 +82,8 @@ class DasBounceProtection
       .splice(0,2)
       .reverse()
       .join('.')
+
+  isUACompatible: ->
+    ('addEventListener' of window.document) && ('pushState' of window.history)
 
 module?.exports = DasBounceProtection

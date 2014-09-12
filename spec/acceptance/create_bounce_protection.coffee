@@ -34,7 +34,19 @@ describe 'Feature: Bounce Protection', ->
 
   describe 'Mouse Exit Intent Bounce Protector', ->
 
+    before ->
+      @bounceProtector = new window.DasBounceProtection
+
     it 'detects when a mouse cursor leaves the desktop viewport', ->
       sinon.spy(@bounceProtector, 'onmouseleave')
       @bounceProtector.mouseleave()
       expect(@bounceProtector.onmouseleave.called).to.be true
+
+  describe 'Bad browser failsafe', ->
+
+    before ->
+      delete window.document.addEventListener
+      @bounceProtector = new window.DasBounceProtection
+
+    it 'does not create itself when the User Agent is incompatible', ->
+      expect(@bounceProtector.args).to.be undefined

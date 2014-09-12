@@ -141,6 +141,9 @@
       this.onforwardbutton = function() {};
       this.onbackbutton = function() {};
       this.onmouseleave = function() {};
+      if (!this.isUACompatible()) {
+        return {};
+      }
       for (arg in this.args) {
         this[arg] = this.args[arg];
       }
@@ -234,6 +237,10 @@
 
     DasBounceProtection.prototype._domainToTLD = function(domain) {
       return domain.split('.').reverse().splice(0, 2).reverse().join('.');
+    };
+
+    DasBounceProtection.prototype.isUACompatible = function() {
+      return ('addEventListener' in window.document) && ('pushState' in window.history);
     };
 
     return DasBounceProtection;
