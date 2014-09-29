@@ -69,6 +69,14 @@ describe 'Feature: Modal', ->
       @modal.handleKillerClick(_event)
       expect(@modal.close.called).to.be true
 
+    it 'may be closed by clicking the close button', ->
+      sinon.spy(@modal, 'close')
+      _event = new @Stubs.EventMock
+      _event.target.className = 'dm-closebutton'
+
+      @modal.handleCloserClick(_event)
+      expect(@modal.close.called).to.be true
+
     it 'calls a callback on trigger', ->
       sinon.spy(@modal, 'ontrigger')
       @modal.trigger()

@@ -432,12 +432,14 @@
     };
 
     Modal.prototype.constructModal = function() {
-      var clickKiller, modalContainer, modalLayout;
+      var clickKiller, closeButton, modalContainer, modalLayout;
       modalContainer = this.constructModalContainer();
       clickKiller = this.constructClickKiller();
       modalLayout = this.constructModalLayout();
+      closeButton = this.constructCloseButton();
       modalContainer.appendChild(clickKiller);
       clickKiller.appendChild(modalLayout);
+      modalLayout.appendChild(closeButton);
       modalLayout.appendChild(this.contentContainer);
       this.container.appendChild(modalContainer);
       return modalContainer;

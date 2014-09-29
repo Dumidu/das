@@ -111,9 +111,11 @@ class Modal
     modalContainer = @constructModalContainer()
     clickKiller    = @constructClickKiller()
     modalLayout    = @constructModalLayout()
+    closeButton    = @constructCloseButton()
 
     modalContainer.appendChild(clickKiller)
     clickKiller.appendChild(modalLayout)
+    modalLayout.appendChild(closeButton)
     modalLayout.appendChild(@contentContainer)
     @container.appendChild(modalContainer)
 
