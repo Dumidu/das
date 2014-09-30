@@ -5,7 +5,7 @@ class ScriptCarrier
     @action         ?= '/'
     @callback       ?= ->
     @callbackParams ?= {}
-    @params         ?= {}
+    @params         ?= []
     @jsonpHandle    ?= @constructJsonpHandler()
     @carrier         = @constructCarrier()
 
@@ -25,16 +25,17 @@ class ScriptCarrier
     carrier
 
   buildCarrierSrc: ->
-    @params['r']        = Math.ceil(Math.random() * 10e8)
-    @params['callback'] = @jsonpHandle
+    @params.push 'r'        : Math.ceil(Math.random() * 10e8)
+    @params.push 'callback' : @jsonpHandle
     "#{@action}?#{@stringifyParams()}"
 
   stringifyParams: ->
     paramsCollection = []
 
-    for param of @params
-      urlParamPair = "#{encodeURIComponent(param)}=#{encodeURIComponent(@params[param])}"
-      paramsCollection.push(urlParamPair)
+    for param in @params
+      for key of param
+        urlParamPair = "#{encodeURIComponent(key)}=#{encodeURIComponent(param[key])}"
+        paramsCollection.push(urlParamPair)
 
     paramsCollection.join('&')
 

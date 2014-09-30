@@ -57,7 +57,7 @@
         this.callbackParams = {};
       }
       if (this.params == null) {
-        this.params = {};
+        this.params = [];
       }
       if (this.jsonpHandle == null) {
         this.jsonpHandle = this.constructJsonpHandler();
@@ -86,17 +86,25 @@
     };
 
     ScriptCarrier.prototype.buildCarrierSrc = function() {
-      this.params['r'] = Math.ceil(Math.random() * 10e8);
-      this.params['callback'] = this.jsonpHandle;
+      this.params.push({
+        'r': Math.ceil(Math.random() * 10e8)
+      });
+      this.params.push({
+        'callback': this.jsonpHandle
+      });
       return "" + this.action + "?" + (this.stringifyParams());
     };
 
     ScriptCarrier.prototype.stringifyParams = function() {
-      var param, paramsCollection, urlParamPair;
+      var key, param, paramsCollection, urlParamPair, _i, _len, _ref;
       paramsCollection = [];
-      for (param in this.params) {
-        urlParamPair = "" + (encodeURIComponent(param)) + "=" + (encodeURIComponent(this.params[param]));
-        paramsCollection.push(urlParamPair);
+      _ref = this.params;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        param = _ref[_i];
+        for (key in param) {
+          urlParamPair = "" + (encodeURIComponent(key)) + "=" + (encodeURIComponent(param[key]));
+          paramsCollection.push(urlParamPair);
+        }
       }
       return paramsCollection.join('&');
     };
@@ -737,7 +745,7 @@
       }
       carrierOptions = {
         action: this.action,
-        params: this.formToCarrierParams(),
+        params: this.formToCarrierParamsArray(),
         callback: handleComplete
       };
       this.carrier = new this.carrierClass(carrierOptions);
@@ -757,6 +765,19 @@
       for (_i = 0, _len = elements.length; _i < _len; _i++) {
         i = elements[_i];
         params[i.name] = i.value;
+      }
+      return params;
+    };
+
+    Subscriber.prototype.formToCarrierParamsArray = function() {
+      var elements, i, param, params, _i, _len;
+      elements = this.form.elements || [];
+      params = [];
+      for (_i = 0, _len = elements.length; _i < _len; _i++) {
+        i = elements[_i];
+        param = {};
+        param[i.name] = i.value;
+        params.push(param);
       }
       return params;
     };

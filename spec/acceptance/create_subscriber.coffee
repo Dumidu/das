@@ -21,20 +21,22 @@ describe 'Feature: Subscriber', ->
     it 'serializes text and hidden data in the form', ->
       @formOptions.form.elements = [
         new @Stubs.DomNodeMock
-          value : 'hidden value'
-          name  : 'hidden'
-        new @Stubs.DomNodeMock
           value : 'input value'
           name  : 'input'
         new @Stubs.DomNodeMock
           value : 'other input value'
           name  : 'other-input'
+        new @Stubs.DomNodeMock
+          value : 'hidden array value'
+          name  : 'hidden-array-element[]'
+        new @Stubs.DomNodeMock
+          value : 'other hidden array value'
+          name  : 'hidden-array-element[]'
       ]
       _subscriber = new window.DasSubscriber(@formOptions)
 
       _subscriber.submit()
-      expect(_subscriber.carrier.params[@formOptions.form.elements[0].name])
-        .to.equal @formOptions.form.elements[0].value
+      expect(_subscriber.carrier.params.length).to.be.above(@formOptions.form.elements.length)
 
     it 'sends the form data to a handler URL', ->
       expectation              = 'http://countryoutfitter.com/subscribe/'

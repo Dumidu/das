@@ -76,7 +76,7 @@ class Subscriber
 
     carrierOptions =
       action   : @action
-      params   : @formToCarrierParams()
+      params   : @formToCarrierParamsArray()
       callback : handleComplete
 
     @carrier = new @carrierClass(carrierOptions)
@@ -92,6 +92,17 @@ class Subscriber
 
     for i in elements
       params[i.name] = i.value
+
+    params
+
+  formToCarrierParamsArray: ->
+    elements = @form.elements || []
+    params = []
+
+    for i in elements
+      param = {}
+      param[i.name] = i.value
+      params.push(param)
 
     params
 
