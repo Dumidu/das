@@ -29,9 +29,10 @@
     </script>
 
     <script>
-      var DasModals      = DasModals || {};
-      var DasResponders  = DasResponders || {};
-      var DasSubscribers = DasSubscribers || {};
+      var dasModals      = dasModals || {};
+      var dasResponders  = dasResponders || {};
+      var dasSubscribers = dasSubscribers || {};
+      var dasQueue       = dasQueue || [];
 
       (function(){
         var onDasLoad = function(){
@@ -40,12 +41,12 @@
         };
 
         var createModals = function(){
-          DasModals.exitModal     = createExitIntentModal();
-          DasModals.flashSaleLink = createflashSaleLinkModal();
+          dasModals['exitModal'}     = createExitIntentModal();
+          dasModals['flashSaleLink'] = createflashSaleLinkModal();
         };
 
         var createResponders = function() {
-          DasResponders.bounceProtection = createBounceProtection();
+          dasResponders['bounceProtection'] = createBounceProtection();
         }
 
         var createExitIntentModal = function(){
@@ -62,17 +63,17 @@
         var createExitSubscriber = function(){
           console.log('createExitSubscriber');
 
-          DasSubscribers.exitModalSubscriber = new DasSubscriber({
+          dasSubscribers.exitModalSubscriber = new DasSubscriber({
             // form       : window.document.querySelector('#giveaway_onexit form'),
             oncomplete : handleExitModalSubscriberComplete,
             onsubmit   : trackExitModalSubscriberSubmit
           });
 
-          console.log(DasSubscribers.exitModalSubscriber);
+          console.log(dasSubscribers.exitModalSubscriber);
           var eventMock = {
             preventDefault: function(){}
           };
-          DasSubscribers.exitModalSubscriber.handleFormSubmit(eventMock);
+          dasSubscribers.exitModalSubscriber.handleFormSubmit(eventMock);
         };
 
         var trackExitModalOpen = function(){
@@ -136,28 +137,38 @@
           return new DasBounceProtection({
             onforwardbutton : function(){
               console.log('onforwardbutton');
-              DasModals.exitModal.close();
+              dasModals.exitModal.close();
             },
             onbackbutton    : function(){
               console.log('onbackbutton');
-              DasModals.exitModal.trigger();
+              dasModals.exitModal.trigger();
             },
             onmouseleave    : function(){
               console.log('onmouseleave');
-              DasModals.exitModal.trigger();
+              dasModals.exitModal.trigger();
             }
           });
         };
 
-        if(!('DasModal' in window)) {
-          var script    = document.createElement('script');
-          script.async  = true;
-          script.src    = '../build/das.js';
-          script.onload = onDasLoad;
-          document.head.appendChild(script);
-        } else {
-          onDasLoad();
-        }
+        window.dasQueue.push([onDasLoad, 'DOMContentLoaded']);
+
+      })();
+    </script>
+
+    <script>
+      (function() {
+        var initQueue, script;
+
+        initQueue = function() {
+          var queue = new DasQueue(window.dasQueue);
+        };
+
+        script        = document.createElement('script');
+        script.async  = true;
+        script.src    = '../build/das.js';
+        script.onload = initQueue;
+
+        document.head.appendChild(script);
       })();
     </script>
   </body>

@@ -133,9 +133,13 @@
     window.DasModal = require('./factories/modal');
   }
 
+  if (typeof window !== "undefined" && window !== null) {
+    window.DasQueue = require('./factories/queue');
+  }
+
 }).call(this);
 
-},{"./factories/bounce_protection":4,"./factories/modal":5,"./factories/subscriber":6}],4:[function(require,module,exports){
+},{"./factories/bounce_protection":4,"./factories/modal":5,"./factories/queue":6,"./factories/subscriber":7}],4:[function(require,module,exports){
 (function() {
   var DasBounceProtection,
     __slice = [].slice;
@@ -627,6 +631,141 @@
 }).call(this);
 
 },{"../adapters/css_utilities":1}],6:[function(require,module,exports){
+(function() {
+  var Queue, QueueItem;
+
+  QueueItem = (function() {
+    function QueueItem(item) {
+      if (typeof Object.prototype.toString.call(item) === !'[object Array]') {
+        throw "QueueItem requires an Array";
+      }
+      this.method = function() {};
+      this.event = null;
+      this.dependencies = [];
+      this.create(item);
+    }
+
+    QueueItem.prototype.create = function(item) {
+      this.method = item.shift();
+      if (!!item.length) {
+        this.event = item.shift();
+      }
+      if (!!item.length) {
+        return this.dependencies = item;
+      }
+    };
+
+    return QueueItem;
+
+  })();
+
+  Queue = (function() {
+    Queue.prototype.QueueItemFactory = QueueItem;
+
+    function Queue(rawQueue) {
+      this.queue = [];
+      this.history = [];
+      this.enqueuedItem = null;
+      this.queueTimeout = null;
+      if (!!rawQueue) {
+        this.enqueueRawItems(rawQueue);
+      }
+      if (this.queue.length) {
+        this.processQueue();
+      }
+    }
+
+    Queue.prototype.push = function(rawItem) {
+      if (typeof Object.prototype.toString.call(rawItem) === !'[object Array]') {
+        throw "Queue.push() requires an Array";
+      }
+      this.enqueueRawItem(rawItem);
+      return this.processQueue();
+    };
+
+    Queue.prototype.enqueueRawItems = function(rawQueue) {
+      var rawItem, _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = rawQueue.length; _i < _len; _i++) {
+        rawItem = rawQueue[_i];
+        _results.push(this.enqueueRawItem(rawItem));
+      }
+      return _results;
+    };
+
+    Queue.prototype.enqueueRawItem = function(rawItem) {
+      var queueItem;
+      queueItem = new this.QueueItemFactory(rawItem);
+      return this.enqueueItem(queueItem);
+    };
+
+    Queue.prototype.enqueueItem = function(queueItem) {
+      return this.queue.push(queueItem);
+    };
+
+    Queue.prototype.processQueue = function() {
+      this.updateEnqueuedItem();
+      if (this.enqueuedItemDependenciesLoaded()) {
+        this.executeEnqueued();
+        this.clearEnqueued();
+        if (this.queue.length) {
+          return this.processQueue();
+        }
+      } else {
+        return this.queueTimeout = window.setTimeout(this.processQueue, 50);
+      }
+    };
+
+    Queue.prototype.enqueuedItemDependenciesLoaded = function() {
+      var method, _i, _len, _ref;
+      if (!this.enqueuedItem.dependencies.length) {
+        return true;
+      }
+      _ref = this.enqueuedItem.dependencies;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        method = _ref[_i];
+        if (!this.methodIsLoaded(method)) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    Queue.prototype.updateEnqueuedItem = function() {
+      return this.enqueuedItem != null ? this.enqueuedItem : this.enqueuedItem = this.shiftTopOfQueue();
+    };
+
+    Queue.prototype.shiftTopOfQueue = function() {
+      return this.queue.shift();
+    };
+
+    Queue.prototype.methodIsLoaded = function(method) {
+      if (method in window) {
+        return true;
+      }
+      return false;
+    };
+
+    Queue.prototype.executeEnqueued = function() {
+      return this.enqueuedItem.method();
+    };
+
+    Queue.prototype.clearEnqueued = function() {
+      this.history.push(this.enqueuedItem);
+      return this.enqueuedItem = null;
+    };
+
+    return Queue;
+
+  })();
+
+  if (typeof module !== "undefined" && module !== null) {
+    module.exports = Queue;
+  }
+
+}).call(this);
+
+},{}],7:[function(require,module,exports){
 (function() {
   var CSSUtilities, Carrier, Subscriber;
 
