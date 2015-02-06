@@ -29,10 +29,11 @@ class Queue
     @processQueue() if @queue.length
 
   push: (rawItem) ->
-    if typeof Object.prototype.toString.call(rawItem) is not '[object Array]'
+    if(Object.prototype.toString.call(rawItem) is '[object Array]')
+      @enqueueRawItem(rawItem)
+      @processQueue()
+    else
       throw "Queue.push() requires an Array"
-    @enqueueRawItem(rawItem)
-    @processQueue()
 
   enqueueRawItems: (rawQueue) ->
     for rawItem in rawQueue
@@ -53,7 +54,7 @@ class Queue
       @clearEnqueued()
       @processQueue() if @queue.length
     else
-      @queueTimeout = window.setTimeout(@processQueue, 50)
+      @queueTimeout = window.setTimeout((=> @processQueue()), 50)
 
   enqueuedItemDependenciesLoaded: ->
     return true unless @enqueuedItem.dependencies.length

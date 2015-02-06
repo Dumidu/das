@@ -676,11 +676,12 @@
     }
 
     Queue.prototype.push = function(rawItem) {
-      if (typeof Object.prototype.toString.call(rawItem) === !'[object Array]') {
+      if (Object.prototype.toString.call(rawItem) === '[object Array]') {
+        this.enqueueRawItem(rawItem);
+        return this.processQueue();
+      } else {
         throw "Queue.push() requires an Array";
       }
-      this.enqueueRawItem(rawItem);
-      return this.processQueue();
     };
 
     Queue.prototype.enqueueRawItems = function(rawQueue) {
@@ -712,7 +713,11 @@
           return this.processQueue();
         }
       } else {
-        return this.queueTimeout = window.setTimeout(this.processQueue, 50);
+        return this.queueTimeout = window.setTimeout(((function(_this) {
+          return function() {
+            return _this.processQueue();
+          };
+        })(this)), 50);
       }
     };
 

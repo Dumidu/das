@@ -41,7 +41,7 @@
         };
 
         var createModals = function(){
-          dasModals['exitModal'}     = createExitIntentModal();
+          dasModals['exitModal']     = createExitIntentModal();
           dasModals['flashSaleLink'] = createflashSaleLinkModal();
         };
 
@@ -61,15 +61,12 @@
         };
 
         var createExitSubscriber = function(){
-          console.log('createExitSubscriber');
-
           dasSubscribers.exitModalSubscriber = new DasSubscriber({
             // form       : window.document.querySelector('#giveaway_onexit form'),
             oncomplete : handleExitModalSubscriberComplete,
             onsubmit   : trackExitModalSubscriberSubmit
           });
 
-          console.log(dasSubscribers.exitModalSubscriber);
           var eventMock = {
             preventDefault: function(){}
           };
@@ -150,7 +147,7 @@
           });
         };
 
-        window.dasQueue.push([onDasLoad, 'DOMContentLoaded']);
+        window.dasQueue.push([onDasLoad, null, 'DasModal']);
 
       })();
     </script>
@@ -160,7 +157,7 @@
         var initQueue, script;
 
         initQueue = function() {
-          var queue = new DasQueue(window.dasQueue);
+          window.dasQueue = new DasQueue(window.dasQueue);
         };
 
         script        = document.createElement('script');

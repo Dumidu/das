@@ -3,20 +3,36 @@ describe 'Feature: Async Library Queue', ->
   before ->
     @Stubs = require '../stubs/stubs'
 
-  beforeEach ->
-    @testSpy  = sinon.spy()
-    @testPush = [
-      @testSpy,
-      'DOMContentLoaded',
-      'testDependency1',
-      'testDependency2'
-    ]
-    @queue = new window.DasQueue()
+  describe 'when a queue is created', ->
 
-  it 'looks for the presence of dependencies', ->
-    sinon.spy(@queue, 'enqueuedItemDependenciesLoaded')
-    @queue.push(@testPush)
-    expect(@queue.enqueuedItemDependenciesLoaded.called).to.be true
+    beforeEach ->
+      @testSpy  = sinon.spy()
+      @testPush = [
+        @testSpy,
+        'DOMContentLoaded',
+        'testDependency1',
+        'testDependency2'
+      ]
+      @queue = new window.DasQueue()
+
+    it 'looks for the presence of dependencies', ->
+      sinon.spy(@queue, 'enqueuedItemDependenciesLoaded')
+      @queue.push(@testPush)
+      expect(@queue.enqueuedItemDependenciesLoaded.called).to.be true
+
+  describe 'when a queue already exists', ->
+
+    beforeEach ->
+      @testSpy  = sinon.spy()
+      @testPush = [ @testSpy ]
+      @existingQueue = new window.DasQueue()
+
+    it 'it can receive new queue items', ->
+      expect(('push' of @existingQueue)).to.be true
+
+    it 'it processes newly pushed queue items', ->
+      @existingQueue.push(@testPush)
+      expect(@testSpy.called).to.be true
 
   describe 'when a queue is given on instantiation', ->
     it 'processes all items in the queue', ->
@@ -31,20 +47,19 @@ describe 'Feature: Async Library Queue', ->
 
   describe 'when a dependency is undefined', ->
 
-    it 'pauses processing momentarilly', ->
+    beforeEach ->
       window.setTimeout = sinon.spy()
-      dependentMethod = ->
-      dependentPush = [
-        dependentMethod,
-        'foo',
-        'undefinedDependency1',
-        'undefinedDependency2'
+      @dependentMethod  = sinon.spy()
+      @requiredLibrary  = 'requiredLibrary'
+      @dependentItem    = [
+        @dependentMethod,
+        null,
+        @requiredLibrary
       ]
-      dependentQueue = new window.DasQueue([dependentPush])
-      expect(window.setTimeout.called).to.be true
+      @dependentQueue = new window.DasQueue([ @dependentItem ])
 
-    it 'executes the Queue Item once the dependency is defined', ->
-      #expect(true).to.be false
+    it 'pauses processing momentarilly', ->
+      expect(window.setTimeout.called).to.be true
 
   describe 'when a dependency is available', ->
 
@@ -55,8 +70,6 @@ describe 'Feature: Async Library Queue', ->
       spy = sinon.spy()
       dependentQueueItem = [spy, null, 'definedDependency']
       subject = new window.DasQueue([ dependentQueueItem ])
-      console.log("\nsubject.queue.length:")
-      console.log(subject.queue.length)
       expect(spy.called).to.be true
       expect(subject.queue.length).to.be 0
 

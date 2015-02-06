@@ -44,7 +44,7 @@ module.exports = (grunt) ->
           'build/das.min.js': ['build/das.js']
     s3:
       options:
-        # debug: true
+        #debug: true
         key: AWS.AWSAccessKeyId
         secret: AWS.AWSSecretKey
         bucket: AWS.bucket
